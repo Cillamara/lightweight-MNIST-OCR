@@ -1,3 +1,0 @@
-/workspaces/lightweight-MNIST-OCR/build/CMakeFiles/mnistocr.dir
-/workspaces/lightweight-MNIST-OCR/build/CMakeFiles/edit_cache.dir
-/workspaces/lightweight-MNIST-OCR/build/CMakeFiles/rebuild_cache.dir
