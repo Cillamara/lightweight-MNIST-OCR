@@ -1,0 +1,20 @@
+# Build artifacts
+/build/
+/bin/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+*.cmake
+
+# Python compiled files
+*.pyc
+__pycache__/
+
+# Shared object / compiled extensions
+*.so
+
+# IDE / editor files (optional)
+.vscode/

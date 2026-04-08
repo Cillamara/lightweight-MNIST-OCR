@@ -1,0 +1,5 @@
+/workspaces/lightweight-MNIST-OCR/build/CMakeFiles/module_name.dir
+/workspaces/lightweight-MNIST-OCR/build/CMakeFiles/edit_cache.dir
+/workspaces/lightweight-MNIST-OCR/build/CMakeFiles/rebuild_cache.dir
+/workspaces/lightweight-MNIST-OCR/build/pybind11/CMakeFiles/edit_cache.dir
+/workspaces/lightweight-MNIST-OCR/build/pybind11/CMakeFiles/rebuild_cache.dir
