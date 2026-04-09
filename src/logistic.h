@@ -12,7 +12,7 @@ public:
 
     float predict(const std::vector<float>& x) const;
     
-    float predict(const std::vector<float>& x) const;
+    void train_step(const std::vector<float>& x, float y, float lr = 0.01f);
 
 private:
     std::vector<float> weights;

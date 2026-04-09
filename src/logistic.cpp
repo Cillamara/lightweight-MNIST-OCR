@@ -7,7 +7,9 @@ static float sigmoid(float z) {
 }
 
 float LogisticRegression::predict(const std::vector<float>& x) const {
+    
 }
 
-float LogisticRegression::predict(const std::vector<float>& x) const {
+void LogisticRegression::train_step(const std::vector<float>& x, float y, float lr) {
+
 }
