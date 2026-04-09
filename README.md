@@ -9,6 +9,7 @@ Logistic regression based OCR for MNIST dataset
 
 ```bash
 pip install pybind11
+pip install torch torchvision
 ```
 ### 2. Build Project
 ```

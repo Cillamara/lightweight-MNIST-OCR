@@ -1,6 +1,7 @@
 # Build artifacts
 /build/
 /bin/
+data/
 
 # CMake files
 CMakeCache.txt
@@ -18,3 +19,4 @@ __pycache__/
 
 # IDE / editor files (optional)
 .vscode/
+
