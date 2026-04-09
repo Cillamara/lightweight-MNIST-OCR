@@ -16,5 +16,12 @@ void LogisticRegression::train_step(const std::vector<float>& x, float y, float 
 }
 
 float LogisticRegression::LossFunction(const float* d_y, const float* d_yhat, int n) {
-    //sugma balls gotta go to class 
+    float* d_losses;
+    cudaMalloc(&d_losses, n * sizeof(float));
+
+    int gridSize = (n + blockSize - 1) / blockSize; // I want to be able to contrll the block size in python cuz i dont know how many threads we 
+    //can use so i dont want to hard code for example blocksize 256
+
+    //TODO also i need to add the gpu kernel i will try to finialize loss function tonight
+    
 }
