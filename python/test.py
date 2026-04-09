@@ -9,6 +9,7 @@ mnist = datasets.MNIST(
 )
 
 model = mnistocr.LogisticRegression(784)
+learning_rate = 0.01
 
 for i in range(1000):
     image, label = mnist[i]
@@ -16,12 +17,12 @@ for i in range(1000):
     x = image.numpy().flatten().astype("float32").tolist()
     y = 1.0 if label == 0 else 0.0
 
-    model.train_step(x, y)
+    model.train_step(x, y, learning_rate)
 
 correct = 0
 total = 100
 
-for i in range(1000, 1100):  # test on new data
+for i in range(1000, 1100):
     image, label = mnist[i]
 
     x = image.numpy().flatten().astype("float32").tolist()
@@ -29,7 +30,6 @@ for i in range(1000, 1100):  # test on new data
 
     pred = model.predict(x)
 
-    # Convert probability → class
     pred_label = 1 if pred > 0.5 else 0
 
     if pred_label == y:
