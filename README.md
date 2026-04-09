@@ -11,10 +11,12 @@ Logistic regression based OCR for MNIST dataset
 pip install pybind11
 ```
 ### 2. Build Project
+```
 mkdir build
 cd build
 cmake ..
 make
+```
 
 ### 3. Usage
 ```
