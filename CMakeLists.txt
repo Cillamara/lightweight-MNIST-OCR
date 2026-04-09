@@ -34,7 +34,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 
 # Build the Python extension
-add_library(mnistocr MODULE src/bindings.cpp)
+add_library(mnistocr MODULE
+    src/logistic.cpp
+    src/bindings.cpp 
+)
 
 # Correct Python extension suffix for Linux
 set_target_properties(mnistocr PROPERTIES

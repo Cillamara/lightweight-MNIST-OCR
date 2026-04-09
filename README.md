@@ -22,7 +22,7 @@ make
 ### 3. Usage
 ```
 import sys
-sys.path.append('../bin')  # or build/
+sys.path.append('../bin')
 
 import mnistocr
 ```

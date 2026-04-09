@@ -1,7 +1,11 @@
+import sys
+sys.path.append("/workspaces/lightweight-MNIST-OCR/bin")
+
 import mnistocr
 
 from torchvision import datasets
 from torchvision import transforms
+
 
 mnist = datasets.MNIST(
     root="data",
@@ -13,6 +17,7 @@ mnist = datasets.MNIST(
 image, label = mnist[1001]
 
 model = mnistocr.LogisticRegression(784)
+learning_rate = 0.01
 
 for i in range(1000):
     image, label = mnist[i]
@@ -20,4 +25,4 @@ for i in range(1000):
     x = image.numpy().flatten().astype("float32").tolist()
     y = 1.0 if label == 0 else 0.0
 
-    model.train_step(x, y)
+    model.train_step(x, y, learning_rate)
