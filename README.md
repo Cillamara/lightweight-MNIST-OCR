@@ -7,9 +7,9 @@ Logistic regression based OCR for MNIST dataset
 - CMake
 - pybind11
 
-  ```bash
+```bash
 pip install pybind11
-
+```
 ### 2. Build Project
 mkdir build
 cd build
@@ -17,9 +17,11 @@ cmake ..
 make
 
 ### 3. Usage
-mkdir build
-cd build
-cmake ..
-make
+```
+import sys
+sys.path.append('../bin')  # or build/
+
+import mnistocr
+```
 
   
