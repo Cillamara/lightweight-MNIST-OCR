@@ -1,0 +1,2 @@
+[console_scripts]
+mnistocr = mnistocr.cli:main
