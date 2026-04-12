@@ -5,16 +5,15 @@
 #include <cmath>
 #include <string>
 
-#include <cublas_v2.h>
 
 class LogisticRegression 
 {
 public:
-    LogisticRegression(int n_features, int n_classes = 1);
+    LogisticRegression(int n_features, int n_classes = 10);
 
     ~LogisticRegression();
 
-    float predict(const std::vector<float>& x);
+    std::vector<float> predict(const std::vector<float>& x);
 
     float LossFunction(const float* d_y, const float* d_yhat, int n, int blockSize = 256) const;
 
@@ -31,8 +30,6 @@ private:
     int n_classes;
     float* d_weights;       // weights on GPU
     float* d_bias;
-    cublasHandle_t handle;  // cuBLAS handle lives in the class
-
     float* d_yhat;
     float* d_error;
     float* d_grad;

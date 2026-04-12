@@ -7,7 +7,6 @@ set(CMAKE_CUDA_STANDARD 17)
 # CUDA must be explicitly enabled
 enable_language(CUDA)
 
-find_package(CUDAToolkit REQUIRED)
 find_package(pybind11 REQUIRED)
 
 add_library(mnistocr MODULE
@@ -17,8 +16,6 @@ add_library(mnistocr MODULE
 
 target_link_libraries(mnistocr PRIVATE
     pybind11::module
-    CUDA::cudart
-    CUDA::cublas
 )
 
 set_target_properties(mnistocr PROPERTIES

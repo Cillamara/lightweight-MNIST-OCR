@@ -4,7 +4,7 @@ from pybind11.setup_helpers import Pybind11Extension, build_ext
 ext_modules = [
     Pybind11Extension(
         "mnistocr", 
-        ["src/logistic.cpp", "src/bindings.cpp"],
+        ["src/logistic.cu", "src/bindings.cu"],
         include_dirs=["src"],
         language="c++"
     ),
@@ -20,8 +20,7 @@ setup(
     cmdclass={"build_ext": build_ext},
 
     install_requires=[
-        "numpy",
-        "torch"
+        "numpy"
     ],
 
     entry_points={
