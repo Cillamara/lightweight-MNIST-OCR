@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.18)
+
+# Point CMake at CUDA_HOME if set (e.g. MATLAB-bundled nvcc)
+if(DEFINED ENV{CUDA_HOME})
+    set(CMAKE_CUDA_COMPILER $ENV{CUDA_HOME}/bin/nvcc)
+    set(CUDAToolkit_ROOT $ENV{CUDA_HOME})
+    set(CMAKE_CUDA_COMPILER_TOOLKIT_ROOT $ENV{CUDA_HOME})
+endif()
+
 project(LIGHTWEIGHT_MNIST_OCR LANGUAGES CXX CUDA)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CUDA_STANDARD 17)
-
-# CUDA must be explicitly enabled
-enable_language(CUDA)
 
 find_package(pybind11 REQUIRED)
 

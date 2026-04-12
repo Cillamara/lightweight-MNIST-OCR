@@ -1,26 +1,19 @@
 import os
 import sys
-import glob
 import gzip
 import struct
-import subprocess
 import urllib.request
 import numpy as np
 
-# Auto-build: compile the CUDA extension if mnistocr.so doesn't exist yet
+# Add project root to path so Python finds mnistocr.so
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, PROJECT_ROOT)
 
-so_files = glob.glob(os.path.join(PROJECT_ROOT, "mnistocr*.so"))
-if not so_files:
-    print("mnistocr.so not found — building CUDA extension...")
-    build_dir = os.path.join(PROJECT_ROOT, "build")
-    os.makedirs(build_dir, exist_ok=True)
-    subprocess.check_call(["cmake", ".."], cwd=build_dir)
-    subprocess.check_call(["make"], cwd=build_dir)
-    print("Build complete.\n")
-
-from mnistocr import LogisticRegression
+try:
+    from mnistocr import LogisticRegression
+except ImportError:
+    print("ERROR: mnistocr.so not found. Run ./compile.sh first.")
+    sys.exit(1)
 
 # MNIST loader
 
