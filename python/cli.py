@@ -123,15 +123,21 @@ def interactive_setup():
     print()
     print("What would you like to do?")
     print("  1) Train a new model")
-    print("  2) Run inference with a trained model")
+    print("  2) Train one-vs-rest (10 binary models, one per digit)")
+    print("  3) Run inference with a trained model")
+    print("  4) Run inference with one-vs-rest ensemble (all 10 models)")
     print()
 
-    choice = input("Enter 1 or 2: ").strip()
+    choice = input("Enter 1-4: ").strip()
 
     if choice == "1":
         interactive_train()
     elif choice == "2":
+        interactive_train_ovr()
+    elif choice == "3":
         interactive_predict()
+    elif choice == "4":
+        interactive_predict_ovr()
     else:
         print(f"Unknown choice: {choice}")
 
@@ -177,8 +183,13 @@ def interactive_train():
     X_train, y_train = load_mnist(data_dir, train=True)
     X_test, y_test = load_mnist(data_dir, train=False)
 
-    # Create model
+    # Create model (or resume from existing)
     model = LogisticRegression(784, n_classes)
+    if os.path.exists(save_path):
+        resume_input = input(f"\n{save_path} already exists. Resume training? [y/N]: ").strip().lower()
+        if resume_input in ("y", "yes"):
+            model.load(save_path)
+            print("Resumed from existing model.")
     print(f"Model: 784 features, {n_classes} classes\n")
 
     # Remap labels
@@ -232,6 +243,167 @@ def interactive_train():
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=2)
     print(f"Class map saved to {meta_path}")
+
+
+def interactive_train_ovr():
+    """Train 10 binary models (one-vs-rest), one per digit."""
+    print()
+    print("--- One-vs-Rest Training (10 binary models) ---")
+    print()
+
+    data_dir = input("MNIST data directory [./data]: ").strip() or "./data"
+    lr = float(input("Learning rate [0.01]: ").strip() or "0.01")
+    epochs = int(input("Epochs per model [5]: ").strip() or "5")
+    save_dir = input("Save directory [./models_ovr]: ").strip() or "./models_ovr"
+    os.makedirs(save_dir, exist_ok=True)
+
+    print(f"\nLoading MNIST from {data_dir}...")
+    X_train, y_train = load_mnist(data_dir, train=True)
+    X_test, y_test = load_mnist(data_dir, train=False)
+
+    # Check for existing models to resume from
+    resume = False
+    existing = [os.path.join(save_dir, f"digit_{d}.bin") for d in range(10)]
+    if all(os.path.exists(p) for p in existing):
+        resume_input = input("Existing models found. Resume training? [y/N]: ").strip().lower()
+        resume = resume_input in ("y", "yes")
+
+    print(f"\nTraining samples: {len(X_train)}")
+    print(f"Test samples:     {len(X_test)}\n")
+
+    for digit in range(10):
+        print(f"=== Training model for digit {digit} (is it a {digit}?) ===")
+
+        # Binary class map: target digit -> class 1, everything else -> class 0
+        class_map = {}
+        for d in range(10):
+            class_map[d] = 1 if d == digit else 0
+
+        y_train_mapped, train_keep = remap_labels(y_train, class_map, 2)
+        y_test_mapped, test_keep = remap_labels(y_test, class_map, 2)
+        train_X = X_train[train_keep]
+        train_y = y_train_mapped[train_keep]
+        test_X = X_test[test_keep]
+        test_y = y_test_mapped[test_keep]
+
+        model = LogisticRegression(784, 2)
+        if resume:
+            model.load(existing[digit])
+            print(f"  Resumed from {existing[digit]}")
+
+        for epoch in range(epochs):
+            perm = np.random.permutation(len(train_X))
+            for i in perm:
+                model.train_step(train_X[i].tolist(), int(train_y[i]), lr)
+
+            # Evaluate
+            correct = 0
+            for i in range(len(test_X)):
+                probs = model.predict(test_X[i].tolist())
+                pred = probs.index(max(probs))
+                if pred == test_y[i]:
+                    correct += 1
+            acc = correct / len(test_X)
+            print(f"  epoch {epoch+1}/{epochs}  test_acc={acc:.4f}")
+
+        save_path = os.path.join(save_dir, f"digit_{digit}.bin")
+        model.save(save_path)
+        print(f"  Saved to {save_path}\n")
+
+    # Save metadata
+    import json
+    meta_path = os.path.join(save_dir, "ovr_meta.json")
+    meta = {
+        "type": "one_vs_rest",
+        "n_models": 10,
+        "n_features": 784,
+        "n_classes_per_model": 2,
+    }
+    with open(meta_path, "w") as f:
+        json.dump(meta, f, indent=2)
+
+    print(f"All 10 models saved to {save_dir}/")
+    print(f"Use option 4 (one-vs-rest inference) to run them together.")
+
+
+def interactive_predict_ovr():
+    """Load all 10 binary models and ensemble their predictions."""
+    print()
+    print("--- One-vs-Rest Inference (10 binary models) ---")
+    print()
+
+    model_dir = input("Model directory [./models_ovr]: ").strip() or "./models_ovr"
+
+    # Load all 10 models
+    models = []
+    for digit in range(10):
+        path = os.path.join(model_dir, f"digit_{digit}.bin")
+        if not os.path.exists(path):
+            print(f"ERROR: {path} not found. Train with option 2 first.")
+            return
+        model = LogisticRegression(784, 2)
+        model.load(path)
+        models.append(model)
+    print(f"Loaded 10 models from {model_dir}/\n")
+
+    # Choose input source
+    print("Input source:")
+    print("  1) MNIST test set (pick random samples)")
+    print("  2) Image file (28x28 grayscale PNG)")
+    print()
+    src = input("Enter 1 or 2: ").strip()
+
+    if src == "1":
+        data_dir = input("MNIST data directory [./data]: ").strip() or "./data"
+        X_test, y_test = load_mnist(data_dir, train=False)
+        n_samples = int(input("How many samples to test? [10]: ").strip() or "10")
+
+        indices = np.random.choice(len(X_test), size=n_samples, replace=False)
+        correct = 0
+        for idx in indices:
+            x = X_test[idx].tolist()
+            true_digit = int(y_test[idx])
+
+            # Ask each model "is it digit d?" and get P(yes)
+            scores = []
+            for d in range(10):
+                probs = models[d].predict(x)
+                scores.append(probs[1])  # P(class 1) = P(is this digit)
+
+            pred_digit = scores.index(max(scores))
+            conf = max(scores)
+            status = "CORRECT" if pred_digit == true_digit else "WRONG"
+            if pred_digit == true_digit:
+                correct += 1
+
+            print(f"  true={true_digit}  pred={pred_digit}  conf={conf:.3f}  {status}")
+
+        print(f"\nAccuracy: {correct}/{n_samples} = {correct/n_samples:.4f}")
+
+    elif src == "2":
+        filepath = input("Path to image: ").strip()
+        if not os.path.exists(filepath):
+            print(f"File not found: {filepath}")
+            return
+
+        from PIL import Image
+        img = Image.open(filepath).convert("L").resize((28, 28))
+        x = np.array(img, dtype=np.float32).flatten() / 255.0
+        x = x.tolist()
+
+        scores = []
+        for d in range(10):
+            probs = models[d].predict(x)
+            scores.append(probs[1])
+
+        pred_digit = scores.index(max(scores))
+        conf = max(scores)
+
+        print(f"\nPredicted digit: {pred_digit}  confidence: {conf:.4f}")
+        print(f"All scores: {[f'{s:.4f}' for s in scores]}")
+
+    else:
+        print(f"Unknown choice: {src}")
 
 
 def interactive_predict():
