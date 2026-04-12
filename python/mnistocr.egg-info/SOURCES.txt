@@ -7,5 +7,3 @@ python/mnistocr.egg-info/dependency_links.txt
 python/mnistocr.egg-info/entry_points.txt
 python/mnistocr.egg-info/requires.txt
 python/mnistocr.egg-info/top_level.txt
-src/bindings.cpp
-src/logistic.cpp

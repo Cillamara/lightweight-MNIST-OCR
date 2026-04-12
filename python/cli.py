@@ -14,8 +14,6 @@ def load_data(path):
     return mnist
 
 def train(args):
-    print(train)
-    exit()
     n_features = 784
     model = LogisticRegression(n_features)
 
@@ -23,13 +21,31 @@ def train(args):
     for epoch in range(args.epochs):
         for x, y in data:
             x = x.view(-1).tolist()
-            model.train_step(x, y, args.lr)
+            y_binary = 1.0 if y == 0 else 0.0 
+            model.train_step(x, int(y_binary), args.lr)
+            
 
     model.save(args.model)
     print(f"Model saved to {args.model}")
 
 def predict(args):
-    pass
+    from PIL import Image
+    import torchvision.transforms as transforms
+
+    img = Image.open(args.input).convert('L')  # grayscale
+    transform = transforms.Compose([
+        transforms.Resize((28, 28)),
+        transforms.ToTensor(),
+    ])
+    x = transform(img).view(-1).tolist()
+
+
+    model = LogisticRegression(784)
+    model.load(args.model)
+    result = model.predict(x)
+
+    print(f"Raw output: {result:.4f}")
+    print(f"Predicted:  {'not 0' if result > 0.5 else '0'}")
 
 if __name__ == "__main__":
     import argparse
