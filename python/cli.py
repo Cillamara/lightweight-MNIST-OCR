@@ -265,7 +265,7 @@ def interactive_train_ovr():
     resume = False
     existing = [os.path.join(save_dir, f"digit_{d}.bin") for d in range(10)]
     if all(os.path.exists(p) for p in existing):
-        resume_input = input("Existing models found. Resume training? [y/N]: ").strip().lower()
+        resume_input = input("Existing models found. Resume training? [y/n]: ").strip().lower()
         resume = resume_input in ("y", "yes")
 
     print(f"\nTraining samples: {len(X_train)}")
